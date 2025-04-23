@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: str8-serverr
+    name: str8-server
     env: node
     buildCommand: cd server && npm install
     startCommand: cd server && npm start

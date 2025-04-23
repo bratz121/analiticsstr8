@@ -9,12 +9,7 @@ const supabase = require("./db");
 const app = express();
 
 // Настройка CORS
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "https://str8-stats.netlify.app"],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
