@@ -17,6 +17,8 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { Player } from "../types";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const maps = ["Rust", "Zone 9", "Sakura", "Province", "Sandstone"];
 
 const AddMatch: React.FC = () => {
@@ -34,7 +36,7 @@ const AddMatch: React.FC = () => {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/players", {
+        const response = await fetch(`${API_URL}/api/players`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,7 +63,7 @@ const AddMatch: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/players/${selectedPlayer}/matches`,
+        `${API_URL}/api/players/${selectedPlayer}/matches`,
         {
           method: "POST",
           headers: {

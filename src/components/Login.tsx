@@ -17,6 +17,7 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated } = useAuth();
@@ -28,7 +29,8 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
+    setLoading(true);
 
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -40,26 +42,18 @@ const Login: React.FC = () => {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Ошибка при входе");
+        throw new Error("Неверное имя пользователя или пароль");
       }
 
       const data = await response.json();
-      login(data.token, data.username, data.role);
-
-      // Если пользователь пытался перейти на защищенную страницу, перенаправляем его туда
-      // Иначе оставляем на текущей странице
-      const from = location.state?.from?.pathname || "/";
-      if (from === "/") {
-        navigate("/stats");
-      }
+      login(data.token);
+      navigate("/");
     } catch (err) {
-      console.error("Login error:", err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Произошла ошибка при подключении к серверу"
+        err instanceof Error ? err.message : "Произошла ошибка при входе"
       );
+    } finally {
+      setLoading(false);
     }
   };
 

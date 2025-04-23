@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -61,7 +63,7 @@ const AdminPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
@@ -75,7 +77,7 @@ const AdminPanel: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/users",
+        `${API_URL}/api/users`,
         { username, password, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -93,7 +95,7 @@ const AdminPanel: React.FC = () => {
   const handleDeleteUser = async (userId: string) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+      await axios.delete(`${API_URL}/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();

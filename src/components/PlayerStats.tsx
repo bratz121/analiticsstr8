@@ -14,9 +14,16 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useAuth } from "../hooks/useAuth";
-import { Player } from "../types";
+import { Player, Match } from "../types";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const PlayerStats: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -27,7 +34,7 @@ const PlayerStats: React.FC = () => {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/players", {
+        const response = await fetch(`${API_URL}/api/players`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
