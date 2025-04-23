@@ -3,11 +3,23 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 const supabase = require("./db");
 
 const app = express();
-app.use(cors());
+
+// Настройка CORS
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://str8-stats.netlify.app"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
+
+// Раздача статических файлов из папки build
+app.use(express.static(path.join(__dirname, "../build")));
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
 
@@ -75,12 +87,10 @@ app.post("/api/auth/login", async (req, res) => {
 
     if (error) {
       console.error("Ошибка при поиске пользователя:", error);
-      return res
-        .status(401)
-        .json({
-          message: "Неверное имя пользователя или пароль",
-          error: error.message,
-        });
+      return res.status(401).json({
+        message: "Неверное имя пользователя или пароль",
+        error: error.message,
+      });
     }
 
     if (!user) {
@@ -404,7 +414,12 @@ function calculateStats(matches) {
   };
 }
 
+// Обработка всех остальных маршрутов - отдаем index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../build/index.html"));
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
