@@ -1,89 +1,70 @@
 import React, { useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Card,
-  CardContent,
-  Alert,
-} from "@mui/material";
-import { useAuth } from "../hooks/useAuth";
+import { Box, TextField, Button, Alert } from "@mui/material";
+import { usePlayers } from "../hooks/usePlayers";
 
-const AddPlayer: React.FC = () => {
+interface AddPlayerProps {
+  onClose?: () => void;
+}
+
+const AddPlayer: React.FC<AddPlayerProps> = ({ onClose }) => {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { addPlayer } = usePlayers();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
+    if (!name.trim()) {
+      setError("Введите имя игрока");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/players", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Ошибка при создании игрока");
-      }
-
-      await response.json();
+      await addPlayer({ name: name.trim() });
       setSuccess("Игрок успешно добавлен");
       setName("");
+      if (onClose) {
+        setTimeout(onClose, 1500); // Закрываем диалог через 1.5 секунды после успешного добавления
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Произошла ошибка");
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" component="h2" gutterBottom>
-            Добавить игрока
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Имя игрока"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              margin="normal"
-              required
-              variant="outlined"
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-              disabled={!name.trim()}
-            >
-              Добавить
-            </Button>
-          </form>
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {success}
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
+    <Box sx={{ p: 2 }}>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Имя игрока"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          margin="normal"
+          required
+          variant="outlined"
+          error={!!error}
+          helperText={error}
+          autoFocus
+        />
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={!name.trim()}
+          >
+            Добавить
+          </Button>
+        </Box>
+      </form>
+      {success && (
+        <Alert severity="success" sx={{ mt: 2 }}>
+          {success}
+        </Alert>
+      )}
     </Box>
   );
 };

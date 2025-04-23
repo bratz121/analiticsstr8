@@ -1,10 +1,12 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
   const role = localStorage.getItem("role");
   const username = localStorage.getItem("username");
 
@@ -12,10 +14,11 @@ const Navigation: React.FC = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("username");
-    navigate("/login");
+    logout();
+    navigate("/");
   };
 
-  if (location.pathname === "/login") {
+  if (location.pathname === "/") {
     return null;
   }
 

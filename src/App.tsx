@@ -13,11 +13,11 @@ import PlayerStats from "./components/PlayerStats";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navigation from "./components/Navigation";
 import AddMatch from "./components/AddMatch";
-import AddPlayer from "./components/AddPlayer";
+import TeamManagement from "./components/TeamManagement";
 import { useAuth } from "./hooks/useAuth";
 
 const App: React.FC = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -35,27 +35,25 @@ const App: React.FC = () => {
             <Route
               path="/stats"
               element={
-                isAuthenticated ? <PlayerStats /> : <Navigate to="/" replace />
+                <ProtectedRoute>
+                  <PlayerStats />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <TeamManagement />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/add-match"
               element={
-                isAuthenticated && isAdmin ? (
+                <ProtectedRoute requiredRole="admin">
                   <AddMatch />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/add-player"
-              element={
-                isAuthenticated && isAdmin ? (
-                  <AddPlayer />
-                ) : (
-                  <Navigate to="/" replace />
-                )
+                </ProtectedRoute>
               }
             />
             <Route

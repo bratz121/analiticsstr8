@@ -8,7 +8,7 @@ import {
   CardContent,
   Alert,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const Login: React.FC = () => {
@@ -16,7 +16,13 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
+
+  // Если пользователь уже авторизован, не показываем форму входа
+  if (isAuthenticated) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +44,13 @@ const Login: React.FC = () => {
 
       const data = await response.json();
       login(data.token, data.username, data.role);
-      navigate("/stats");
+
+      // Если пользователь пытался перейти на защищенную страницу, перенаправляем его туда
+      // Иначе оставляем на текущей странице
+      const from = location.state?.from?.pathname || "/";
+      if (from === "/") {
+        navigate("/stats");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Произошла ошибка");
     }
@@ -47,11 +59,17 @@ const Login: React.FC = () => {
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "calc(100vh - 64px)", // Вычитаем высоту AppBar
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        position: "fixed",
+        top: "64px", // Высота AppBar
+        left: 0,
+        right: 0,
+        bottom: 0,
         backgroundColor: "background.default",
+        zIndex: 1,
       }}
     >
       <Card sx={{ maxWidth: 400, width: "100%", mx: 2 }}>

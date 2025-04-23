@@ -1,100 +1,97 @@
 import React, { useState } from "react";
 import {
   Box,
-  TextField,
-  Button,
-  Paper,
   Typography,
+  Card,
+  CardContent,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
+  IconButton,
+  Divider,
 } from "@mui/material";
-import axios from "axios";
-
-interface Player {
-  _id: string;
-  name: string;
-}
+import AddIcon from "@mui/icons-material/Add";
+import { usePlayers } from "../hooks/usePlayers";
+import AddPlayer from "./AddPlayer";
 
 const TeamManagement: React.FC = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [newPlayerName, setNewPlayerName] = useState("");
+  const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
+  const { players, loading, error } = usePlayers();
 
-  const fetchPlayers = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/players");
-      setPlayers(response.data);
-    } catch (error) {
-      console.error("Error fetching players:", error);
-    }
+  const handleOpenAddPlayer = () => {
+    setIsAddPlayerOpen(true);
   };
 
-  React.useEffect(() => {
-    fetchPlayers();
-  }, []);
-
-  const handleAddPlayer = async () => {
-    if (!newPlayerName.trim()) return;
-
-    try {
-      await axios.post("http://localhost:5000/api/players", {
-        name: newPlayerName.trim(),
-      });
-      setNewPlayerName("");
-      fetchPlayers();
-    } catch (error) {
-      console.error("Error adding player:", error);
-    }
-  };
-
-  const handleDeletePlayer = async (playerId: string) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/players/${playerId}`);
-      fetchPlayers();
-    } catch (error) {
-      console.error("Error deleting player:", error);
-    }
+  const handleCloseAddPlayer = () => {
+    setIsAddPlayerOpen(false);
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Управление командой
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-          <TextField
-            label="Имя игрока"
-            value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
-            fullWidth
-          />
-          <Button
-            variant="contained"
-            onClick={handleAddPlayer}
-            disabled={!newPlayerName.trim()}
+    <Box sx={{ maxWidth: 800, mx: "auto", mt: 4 }}>
+      <Card>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
           >
-            Добавить игрока
-          </Button>
-        </Box>
-        <List>
-          {players.map((player) => (
-            <ListItem key={player._id}>
-              <ListItemText primary={player.name} />
-              <ListItemSecondaryAction>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleDeletePlayer(player._id)}
-                >
-                  Удалить
-                </Button>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
+            <Typography variant="h5" component="h2">
+              Управление командой
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAddPlayer}
+            >
+              Добавить игрока
+            </Button>
+          </Box>
+
+          {loading ? (
+            <Typography>Загрузка...</Typography>
+          ) : error ? (
+            <Typography color="error">{error}</Typography>
+          ) : (
+            <List>
+              {players.map((player, index) => (
+                <React.Fragment key={player.id}>
+                  <ListItem>
+                    <ListItemText
+                      primary={player.name}
+                      secondary={`Матчей: ${player.matches.length}`}
+                    />
+                  </ListItem>
+                  {index < players.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={isAddPlayerOpen}
+        onClose={handleCloseAddPlayer}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Добавить игрока</DialogTitle>
+        <DialogContent>
+          <AddPlayer onClose={handleCloseAddPlayer} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAddPlayer}>Закрыть</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
