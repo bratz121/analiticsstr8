@@ -11,6 +11,8 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +31,7 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +54,12 @@ const Login: React.FC = () => {
         navigate("/stats");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Произошла ошибка");
+      console.error("Login error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Произошла ошибка при подключении к серверу"
+      );
     }
   };
 
