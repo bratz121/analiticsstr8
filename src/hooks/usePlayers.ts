@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Player } from "../types";
 import { useAuth } from "./useAuth";
 
@@ -8,7 +8,7 @@ export const usePlayers = () => {
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     if (!token) {
       setError("Требуется авторизация");
       setLoading(false);
@@ -35,7 +35,7 @@ export const usePlayers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   const addPlayer = async (
     playerData: Omit<Player, "id" | "matches" | "stats">
@@ -75,7 +75,7 @@ export const usePlayers = () => {
     if (token) {
       fetchPlayers();
     }
-  }, [token]);
+  }, [token, fetchPlayers]);
 
   return {
     players,
