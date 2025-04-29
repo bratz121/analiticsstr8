@@ -8,7 +8,7 @@ import {
   CardContent,
   Alert,
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -17,9 +17,7 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { login, isAuthenticated } = useAuth();
 
   // Если пользователь уже авторизован, не показываем форму входа
@@ -30,7 +28,6 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -52,8 +49,6 @@ const Login: React.FC = () => {
       setError(
         err instanceof Error ? err.message : "Произошла ошибка при входе"
       );
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // Раздача статических файлов из папки build
-app.use(express.static(path.join(__dirname, "../build")));
+app.use(express.static("build"));
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
 
@@ -119,6 +119,69 @@ app.post("/api/auth/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Ошибка входа:", err);
+    res.status(500).json({
+      message: "Ошибка сервера",
+      error: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
+  }
+});
+
+// Регистрация
+app.post("/api/auth/register", async (req, res) => {
+  try {
+    const { username, password, role = "user" } = req.body;
+
+    // Проверяем наличие username и password
+    if (!username || !password) {
+      return res.status(400).json({
+        message: "Требуется указать имя пользователя и пароль",
+        details: {
+          username: !username ? "Не указано имя пользователя" : null,
+          password: !password ? "Не указан пароль" : null,
+        },
+      });
+    }
+
+    // Проверяем, существует ли пользователь
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("username")
+      .eq("username", username)
+      .single();
+
+    if (existingUser) {
+      return res.status(400).json({ message: "Пользователь уже существует" });
+    }
+
+    // Хешируем пароль
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);
+
+    // Создаем пользователя
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ username, password_hash, role }])
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    // Создаем JWT токен
+    const token = jwt.sign(
+      { id: data[0].id, username: data[0].username, role: data[0].role },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      token,
+      username: data[0].username,
+      role: data[0].role,
+    });
+  } catch (err) {
+    console.error("Ошибка регистрации:", err);
     res.status(500).json({
       message: "Ошибка сервера",
       error: err.message,
@@ -415,7 +478,7 @@ function calculateStats(matches) {
   };
 }
 
-// Обработка всех остальных маршрутов - отдаем index.html
+// Обработка всех остальных маршрутов для React Router
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../build/index.html"));
 });
