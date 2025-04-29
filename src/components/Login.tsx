@@ -46,7 +46,7 @@ const Login: React.FC = () => {
       }
 
       const data = await response.json();
-      login(data.token);
+      login(data.token, data.username, data.role);
       navigate("/");
     } catch (err) {
       setError(

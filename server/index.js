@@ -350,6 +350,7 @@ function calculateStats(matches) {
       totalMatches: 0,
       winRate: 0,
       averageKd: 0,
+      averageKills: 0,
       averageImpact: 0,
       mapStats: [],
     };
@@ -365,6 +366,7 @@ function calculateStats(matches) {
   );
   const winRate = (totalWins / totalMatches) * 100;
   const averageKd = totalDeaths > 0 ? totalKills / totalDeaths : totalKills;
+  const averageKills = totalMatches > 0 ? totalKills / totalMatches : 0;
   const averageImpact =
     totalMatches > 0 ? (totalKills + totalAssists) / totalMatches : 0;
 
@@ -392,8 +394,11 @@ function calculateStats(matches) {
       mapName: mapName.charAt(0).toUpperCase() + mapName.slice(1),
       matches: stats.matches,
       wins: stats.wins,
+      kills: stats.kills,
+      deaths: stats.deaths,
       winRate: (stats.wins / stats.matches) * 100,
       averageKd: stats.deaths > 0 ? stats.kills / stats.deaths : stats.kills,
+      averageKills: stats.matches > 0 ? stats.kills / stats.matches : 0,
     })
   );
 
@@ -404,6 +409,7 @@ function calculateStats(matches) {
     totalMatches,
     winRate,
     averageKd,
+    averageKills,
     averageImpact,
     mapStats: formattedMapStats,
   };

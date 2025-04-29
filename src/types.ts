@@ -13,6 +13,9 @@ export interface MapStats {
   wins: number;
   winRate: number;
   averageKd: number;
+  averageKills: number;
+  kills: number;
+  deaths: number;
 }
 
 export interface PlayerStats {
@@ -22,6 +25,7 @@ export interface PlayerStats {
   totalMatches: number;
   winRate: number;
   averageKd: number;
+  averageKills: number;
   averageImpact: number;
   mapStats: MapStats[];
 }
