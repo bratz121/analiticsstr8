@@ -27,10 +27,10 @@
     "dotenv": "^16.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "npx react-scripts start",
+    "build": "npx react-scripts build",
+    "test": "npx react-scripts test",
+    "eject": "npx react-scripts eject",
     "server": "node server/index.js",
     "dev": "concurrently \"npm run start\" \"npm run server\"",
     "prod": "npm run build && npm run server"

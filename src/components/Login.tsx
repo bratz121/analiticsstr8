@@ -11,7 +11,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+// В продакшене API находится на том же домене
+const API_URL =
+  process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
